@@ -97,7 +97,8 @@ body.closed .panel{display:none}
 .pane.on{display:flex}
 .label{font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted)}
 .group{display:flex;flex-direction:column;gap:8px}
-.tools{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.tools{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+#rectBox{position:absolute;border:1.5px dashed rgba(255,255,255,.9);border-radius:10px;mix-blend-mode:difference;pointer-events:none;display:none}
 .tool{background:var(--raise);border:1px solid var(--line);border-radius:12px;padding:9px 2px 8px;display:flex;flex-direction:column;align-items:center;gap:5px;font-size:10.5px;letter-spacing:.04em}
 .tool svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
 .tool[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink);border-color:transparent}
@@ -426,7 +427,7 @@ en:{tagline:'Draw. Inflate. Dress.','a.canvas':'Drawing canvas. Draw with a fing
 bg:'Background',spin:'Spin','spin.tip':'Tap to start or stop. Drag left or right to change the speed.','spin.first':'Drag across Spin to change the speed',off:'Off',
 view3d:'3D view',draw:'Draw','a.view':'View','a.mode':'What dragging does in 3D','mode.turn':'Turn','mode.draw':'Draw','a.view2d':'Flat view','whole.hint':'Brush only changes new lines. Melt and Puff below change the whole piece.',axis:'Mirror line','axis.tip':'Drag to move the mirror line. Double-click to centre it.','v.front':'Front','v.side':'Side','v.top':'Top',export:'Export','tab.shape':'Shape','tab.material':'Material','tab.board':'Mood board',
 brush:'Brush',mirror:'Mirror','m.none':'Off','m.x':'Left / right','m.xy':'Four way',melt:'Melt',puff:'Puff',surprise:'Surprise me',clear:'Clear canvas',
-'tool.draw':'Draw','tool.blob':'Blob','tool.hole':'Hole','tool.swell':'Swell','tool.thin':'Thin','tool.smooth':'Smooth',
+'tool.draw':'Draw','tool.rect':'Panel','hint.rect':'Drag to draw a filled panel. Draw from its edge and the line melts into it.','tool.blob':'Blob','tool.hole':'Hole','tool.swell':'Swell','tool.thin':'Thin','tool.smooth':'Smooth',
 'hint.draw':'Drag to draw a soft line.','hint.blob':'Tap to drop a blob. Keep pressing and it grows.','hint.hole':'Drag or tap to cut material away.',
 'hint.swell':'Rub or hold over a part to make it fatter.','hint.thin':'Rub or hold over a part to slim it down.','hint.smooth':'Rub to relax bumps and sharp joins.',
 materials:'Materials',name:'Name',color:'Color',sheen:'Sheen','row.metal':'Metal','row.gloss':'Gloss','row.iri':'Sheen shift','row.soft':'Softness','row.grain':'Grain','row.gscale':'Grain size','row.imgMix':'Reflection',
@@ -461,7 +462,7 @@ tr:{tagline:'Çiz. Şişir. Giydir.','a.canvas':'Çizim alanı. Parmak, kalem ya
 bg:'Arka plan',spin:'Dönüş','spin.tip':'Başlatmak ya da durdurmak için dokun. Hızı değiştirmek için sağa sola kaydır.','spin.first':'Hızı değiştirmek için Dönüş\'ü sağa sola kaydır',off:'Kapalı',
 view3d:'3D görünüm',draw:'Çiz','a.view':'Görünüm','a.mode':'3D görünümde sürüklemenin işlevi','mode.turn':'Çevir','mode.draw':'Çiz','a.view2d':'Düz görünüm','whole.hint':'Fırça sadece yeni çizgileri etkiler. Aşağıdaki Erime ve Şişkinlik tüm formu değiştirir.',axis:'Ayna çizgisi','axis.tip':'Ayna çizgisini taşımak için sürükle. Ortalamak için çift tıkla.','v.front':'Ön','v.side':'Yan','v.top':'Üst',export:'Dışa aktar','tab.shape':'Şekil','tab.material':'Malzeme','tab.board':'Mood board',
 brush:'Fırça',mirror:'Ayna','m.none':'Kapalı','m.x':'Sol / sağ','m.xy':'Dört yön',melt:'Erime',puff:'Şişkinlik',surprise:'Sürpriz yap',clear:'Temizle',
-'tool.draw':'Çiz','tool.blob':'Damla','tool.hole':'Delik','tool.swell':'Kabart','tool.thin':'İncelt','tool.smooth':'Yumuşat',
+'tool.draw':'Çiz','tool.rect':'Panel','hint.rect':'Dolu bir panel çizmek için sürükle. Kenarından çizmeye devam edersen çizgi panele kaynaşır.','tool.blob':'Damla','tool.hole':'Delik','tool.swell':'Kabart','tool.thin':'İncelt','tool.smooth':'Yumuşat',
 'hint.draw':'Yumuşak bir çizgi çizmek için sürükle.','hint.blob':'Damla bırakmak için dokun. Basılı tutarsan büyür.','hint.hole':'Malzemeyi oymak için dokun ya da sürükle.',
 'hint.swell':'Bir bölümü kalınlaştırmak için üzerinde gezdir ya da basılı tut.','hint.thin':'Bir bölümü inceltmek için üzerinde gezdir ya da basılı tut.','hint.smooth':'Pürüzleri ve sert birleşimleri yumuşatmak için üzerinde gezdir.',
 materials:'Malzemeler',name:'İsim',color:'Renk',sheen:'Parıltı','row.metal':'Metal','row.gloss':'Parlaklık','row.iri':'Renk kayması','row.soft':'Yumuşaklık','row.grain':'Doku','row.gscale':'Doku boyutu','row.imgMix':'Yansıma',
@@ -1291,6 +1292,7 @@ $('#shapeMake').addEventListener('click',()=>{
 /* ================= tools + pointer ================= */
 const TOOLS=[
  ['draw','','<path d="M4 18c3-8 6 2 9-5s5-7 7-6"/>',''],
+ ['rect','','<rect x="3.5" y="6" width="17" height="12" rx="3.5"/>',''],
  ['blob','','<circle cx="12" cy="12" r="6.5"/>',''],
  ['hole','','<circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="2.6"/>',''],
  ['swell','','<circle cx="12" cy="12" r="3.5"/><path d="M12 3v3M12 18v3M3 12h3M18 12h3"/>',''],
@@ -1405,6 +1407,10 @@ cv.addEventListener('pointerdown',e=>{
   engineFinish();
   if((view.on||view.v2!=='front')&&(S.tool==='draw'||S.tool==='blob'||S.tool==='hole'))MS=M.slice();
   ptr={id:e.pointerId,last:null,grow:0,held:0};
+  if(S.tool==='rect'){
+    const q=camLine(e).plane([0,0,0]);
+    pushUndo();ptr.rect={x0:e.clientX,y0:e.clientY,x1:e.clientX,y1:e.clientY,q0:q};ptr.last=q;view.hold=true;rectShow();return;
+  }
   const q=placePoint(e);
   pushUndo();
   ptr.last=q;view.hold=true;
@@ -1421,6 +1427,7 @@ cv.addEventListener('pointermove',e=>{
     view.yaw+=dx/r.width*3.4;view.pitch=Math.max(-1.5,Math.min(1.5,view.pitch+dy/r.height*3.4));want();return;
   }
   if(!ptr||e.pointerId!==ptr.id)return;
+  if(ptr.rect){ptr.rect.x1=e.clientX;ptr.rect.y1=e.clientY;rectShow();return;}
   const evs=e.getCoalescedEvents?e.getCoalescedEvents():[e];
   const r=brushR(),step=Math.max(h*0.8,r*0.3);
   for(const ev of (evs.length?evs:[e])){
@@ -1435,7 +1442,23 @@ cv.addEventListener('pointermove',e=>{
 function up(e){
   if(bgEditing||bgPts.size){bgUp(e);if(bgEditing)return;}
   if(pts.delete(e.pointerId)){if(pts.size<2)pinch=null;if(!pts.size){view.hold=false;want();}}
-  if(!ptr||e.pointerId!==ptr.id)return;ptr=null;MS=null;if(!pts.size)view.hold=false;save();want();
+  if(!ptr||e.pointerId!==ptr.id)return;if(ptr.rect){rectFill(ptr.rect);rectBox.style.display='none';}ptr=null;MS=null;if(!pts.size)view.hold=false;save();want();
+}
+/* panel tool: drag a rectangle, release to fill it with material */
+const rectBox=document.createElement('div');rectBox.id='rectBox';frame.appendChild(rectBox);
+function rectShow(){const R=ptr.rect,f=frame.getBoundingClientRect();
+  rectBox.style.display='block';rectBox.style.left=(Math.min(R.x0,R.x1)-f.left)+'px';rectBox.style.top=(Math.min(R.y0,R.y1)-f.top)+'px';
+  rectBox.style.width=Math.abs(R.x1-R.x0)+'px';rectBox.style.height=Math.abs(R.y1-R.y0)+'px';}
+function rectFill(R){
+  const r=brushR(),Q=R.q0,pt=(x,y)=>camLine({clientX:x,clientY:y}).plane(Q);
+  const A=pt(R.x0,R.y0),B=pt(R.x1,R.y0),C=pt(R.x0,R.y1);
+  const U=[B[0]-A[0],B[1]-A[1],B[2]-A[2]],V=[C[0]-A[0],C[1]-A[1],C[2]-A[2]];
+  const lu=Math.hypot(...U),lv=Math.hypot(...V);
+  const step=Math.max(h*0.8,r*0.45);
+  const span=(l)=>{if(l<=2*r)return [0.5];const a=r/l,n=Math.max(1,Math.ceil((l-2*r)/step)),o=[];for(let i=0;i<=n;i++)o.push(a+(1-2*a)*i/n);return o;};
+  const us=span(lu),vs=span(lv);
+  for(const u of us)for(const v of vs)stampW([A[0]+U[0]*u+V[0]*v,A[1]+U[1]*u+V[1]*v,A[2]+U[2]*u+V[2]*v],r,'draw');
+  want();
 }
 cv.addEventListener('contextmenu',e=>{if(view.on)e.preventDefault();});
 cv.addEventListener('pointerup',up);cv.addEventListener('pointercancel',up);
@@ -1469,7 +1492,7 @@ function axDrag(knob,axis){
 axDrag($('#axKnobX'),'x');axDrag($('#axKnobY'),'y');
 function heldTick(){ // press-and-hold behaviour for blob / swell / thin / smooth
   if(!ptr||!ptr.last)return false;
-  const t=S.tool;if(t==='draw'||t==='hole')return false;
+  const t=S.tool;if(t==='draw'||t==='hole'||t==='rect')return false;
   ptr.held++;
   if(t==='blob'){ptr.grow=Math.min(0.44,ptr.grow+0.45*OLDPX);stampW(ptr.last,ptr.grow,'draw');}
   else if(ptr.held%2===0)apply(ptr.last,false);
@@ -1766,6 +1789,127 @@ syncMirror();setTool(S.tool);buildSwatches();syncEditor();buildBg();buildBoard()
 tab('shape');if(matchMedia('(max-width:879px)').matches)setPanel(false);
 applyFormatUI();engineStep(40);want();
 })();
+/* ---------- Lab notes: click anywhere, leave a note, it lands in Dide's inbox ---------- */
+(function(){
+const KEY='860ba744-2681-46f3-bd2c-f8c544ac4571';
+const NT={
+ en:{btn:'Note',tip:'Leave a note on any part',mode:'Click anywhere to leave a note. Esc to cancel.',ph:'What do you think about this part?',name:'Name (optional)',mail:'Email, if you want a reply',send:'Send',cancel:'Cancel',sending:'Sending…',ok:'Thank you! Your note is on its way ✧',err:'Could not send. Try again in a moment.',empty:'Write something first'},
+ tr:{btn:'Not',tip:'Herhangi bir yere not bırak',mode:'Not bırakmak için herhangi bir yere tıkla. Vazgeçmek için Esc.',ph:'Bu kısım hakkında ne düşünüyorsun?',name:'İsim (isteğe bağlı)',mail:'Cevap istersen e-posta',send:'Gönder',cancel:'Vazgeç',sending:'Gönderiliyor…',ok:'Teşekkürler! Notun yolda ✧',err:'Gönderilemedi. Birazdan tekrar dene.',empty:'Önce bir şey yaz'}
+};
+const nt=k=>(NT[document.documentElement.lang]||NT.en)[k];
+const css=document.createElement('style');
+css.textContent=`
+#noteChip svg{width:15px;height:15px}
+#noteLayer{position:fixed;inset:0;z-index:60;cursor:crosshair;background:rgba(10,8,14,.08)}
+#noteBanner{position:fixed;left:50%;top:12px;transform:translateX(-50%);z-index:61;background:var(--raise);border:1px solid var(--line);border-radius:17px;padding:8px 14px;font-size:12px;pointer-events:none;white-space:nowrap;max-width:92vw;overflow:hidden;text-overflow:ellipsis}
+.notePin{position:fixed;z-index:62;width:22px;height:22px;margin:-22px 0 0 0;border-radius:11px 11px 11px 2px;background:var(--accent);box-shadow:0 0 0 2px #fff,0 4px 12px rgba(0,0,0,.4);pointer-events:none;transition:opacity .6s}
+#noteBox{position:fixed;z-index:63;width:260px;background:rgba(29,25,37,.96);border:1px solid var(--line);border-radius:16px;padding:10px;display:flex;flex-direction:column;gap:6px;box-shadow:0 12px 40px rgba(0,0,0,.45);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
+#noteBox textarea,#noteBox input{width:100%;background:var(--ink);border:1px solid var(--line);border-radius:10px;padding:8px 10px;font:12px/1.4 var(--mono);color:var(--text);resize:none}
+#noteBox textarea{height:76px}
+#noteBox .where{font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#noteBox .nbtns{display:flex;gap:6px;justify-content:flex-end}
+#noteBox .hp{position:absolute;left:-9999px;width:1px;height:1px;opacity:0}
+`;
+document.head.appendChild(css);
+const chip=document.createElement('button');
+chip.className='chip';chip.id='noteChip';
+chip.innerHTML='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16v11H9l-5 4z"/></svg><span></span>';
+const right=document.querySelector('.corner.r');
+if(right)right.insertBefore(chip,right.firstChild);
+const labels=()=>{chip.querySelector('span').textContent=nt('btn');chip.title=nt('tip');chip.setAttribute('aria-label',nt('tip'));};
+labels();new MutationObserver(labels).observe(document.documentElement,{attributes:true,attributeFilter:['lang']});
+
+let layer=null,banner=null,box=null,pin=null;
+const txt=el=>(el.getAttribute&&(el.getAttribute('aria-label')||el.getAttribute('title')))||(el.textContent||'').trim().replace(/\s+/g,' ');
+function describe(x,y){
+  const el=document.elementFromPoint(x,y);
+  if(!el)return 'unknown';
+  const parts=[];
+  if(el.closest('#gl')||el.closest('#frame')){
+    const f=document.querySelector('#frame').getBoundingClientRect();
+    const fx=(x-f.left)/f.width,fy=(y-f.top)/f.height;
+    const h=fx<.33?'left':fx>.66?'right':'center',v=fy<.33?'top':fy>.66?'bottom':'middle';
+    parts.push(el.id==='gl'?'canvas':'canvas UI');
+    if(el.id!=='gl'){const b=el.closest('button,[role="slider"],.segchip,.chip');if(b)parts.push(txt(b).slice(0,40));}
+    parts.push(v+' '+h);
+  }else if(el.closest('#panel')){
+    parts.push('panel: '+(document.querySelector('#panelTitle')||{}).textContent);
+    const row=el.closest('.row,.prow,.btns,.tools,button,label,.card,.swatch');
+    const b=el.closest('button,input,label');
+    const t=(b&&txt(b))||(row&&txt(row))||txt(el);
+    if(t)parts.push(t.slice(0,60));
+  }else if(el.closest('#rail')){
+    const b=el.closest('button');parts.push('side rail'+(b?': '+txt(b).slice(0,30):''));
+  }else{
+    const b=el.closest('[id]');parts.push((b&&b.id)||el.tagName.toLowerCase());
+  }
+  return parts.filter(Boolean).join(' · ');
+}
+function stop(){
+  if(layer){layer.remove();layer=null;}
+  if(banner){banner.remove();banner=null;}
+  if(box){box.remove();box=null;}
+  if(pin){pin.remove();pin=null;}
+  document.removeEventListener('keydown',onKey,true);
+  chip.classList.remove('go');
+}
+function onKey(e){if(e.key==='Escape'){e.preventDefault();stop();}}
+function start(){
+  if(layer||box){stop();return;}
+  chip.classList.add('go');
+  layer=document.createElement('div');layer.id='noteLayer';
+  banner=document.createElement('div');banner.id='noteBanner';banner.textContent=nt('mode');
+  document.body.append(layer,banner);
+  document.addEventListener('keydown',onKey,true);
+  layer.addEventListener('pointerdown',e=>{
+    e.preventDefault();e.stopPropagation();
+    const x=e.clientX,y=e.clientY;
+    layer.style.display='none';const where=describe(x,y);
+    layer.remove();layer=null;banner.remove();banner=null;
+    open(x,y,where);
+  });
+}
+function open(x,y,where){
+  pin=document.createElement('div');pin.className='notePin';pin.style.left=x+'px';pin.style.top=y+'px';
+  box=document.createElement('form');box.id='noteBox';
+  box.innerHTML=`<div class="where"></div><textarea required></textarea><input type="text" name="n" autocomplete="name"><input type="email" name="e" autocomplete="email"><input class="hp" type="checkbox" name="botcheck" tabindex="-1" aria-hidden="true"><div class="nbtns"><button type="button" class="btn quiet nc"></button><button type="submit" class="btn pri ns"></button></div>`;
+  const [ta,nm,em]=[box.querySelector('textarea'),box.querySelector('[name=n]'),box.querySelector('[name=e]')];
+  box.querySelector('.where').textContent='✎ '+where;
+  ta.placeholder=nt('ph');nm.placeholder=nt('name');em.placeholder=nt('mail');
+  box.querySelector('.nc').textContent=nt('cancel');box.querySelector('.ns').textContent=nt('send');
+  document.body.append(pin,box);
+  const W=window.innerWidth,H=window.innerHeight,bw=260,bh=box.offsetHeight||230;
+  let left=x+14,top=y-10;
+  if(left+bw>W-8)left=Math.max(8,x-bw-14);
+  if(top+bh>H-8)top=Math.max(8,H-bh-8);
+  box.style.left=left+'px';box.style.top=top+'px';
+  ta.focus();
+  box.querySelector('.nc').onclick=stop;
+  box.addEventListener('submit',async e=>{
+    e.preventDefault();
+    const msg=ta.value.trim();if(!msg){ta.placeholder=nt('empty');ta.focus();return;}
+    if(box.querySelector('[name=botcheck]').checked){stop();return;}
+    const sb=box.querySelector('.ns');sb.disabled=true;sb.textContent=nt('sending');
+    const mat=(document.querySelector('#microMat')||{}).textContent||'';
+    const view=(document.querySelector('#dim [aria-pressed="true"]')||{}).textContent||'';
+    const body={access_key:KEY,subject:'Lab note · '+where.slice(0,60),from_name:'Blob Foundry Lab',
+      name:nm.value.trim()||'Anonymous',message:msg,clicked_on:where,view:view,material:mat,
+      language:document.documentElement.lang,screen:W+'×'+H,page:(document.referrer||location.href)};
+    if(em.value.trim()){body.email=em.value.trim();body.replyto=em.value.trim();}
+    try{
+      const r=await fetch('https://api.web3forms.com/submit',{method:'POST',headers:{'Content-Type':'application/json',Accept:'application/json'},body:JSON.stringify(body)});
+      const j=await r.json().catch(()=>({}));
+      if(!r.ok||j.success===false)throw new Error(j.message||r.status);
+      const p=pin;pin=null;stop();
+      if(typeof toast==='function')toast(nt('ok'));
+      if(p){document.body.appendChild(p);setTimeout(()=>{p.style.opacity='0';setTimeout(()=>p.remove(),700);},2500);}
+    }catch(err){sb.disabled=false;sb.textContent=nt('send');if(typeof toast==='function')toast(nt('err'));}
+  });
+  document.addEventListener('keydown',onKey,true);
+}
+chip.addEventListener('click',start);
+})();
+
 </script>
 </body>
 </html>
